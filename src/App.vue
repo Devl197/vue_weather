@@ -1,28 +1,48 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header
+      v-on:searchCity="handleSearch"
+      v-bind:weatherResults="weatherResults"
+    />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header.vue';
+import cities from './assets/cities.json';
+import { API_KEY } from './secret.js';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    Header,
+  },
+  data() {
+    return {
+      weatherResults: [],
+    };
+  },
+  methods: {
+    async handleSearch(city) {
+      const idArray = [];
+      cities.forEach(val => {
+        if (val.name.toLowerCase() == city) idArray.push(val.id);
+      });
+
+      const res = await this.getCurrentWeatherByIds(idArray);
+      this.weatherResults = res;
+    },
+    async getCurrentWeatherByIds(IDs) {
+      const responseForCity = await fetch(
+        `https://api.openweathermap.org/data/2.5/group?id=${IDs.toString()}&units=metric&appid=${API_KEY}`
+      );
+
+      const dataForCites = await responseForCity.json();
+
+      return dataForCites.list;
+    },
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>
