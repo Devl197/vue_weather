@@ -28,9 +28,12 @@ export default {
       cities.forEach(val => {
         if (val.name.toLowerCase() == city) idArray.push(val.id);
       });
-
+      if(idArray.length > 0 ){
       const res = await this.getCurrentWeatherByIds(idArray);
       this.weatherResults = res;
+      } else {
+        console.log('Not valid city name');
+      }
     },
     async getCurrentWeatherByIds(IDs) {
       const responseForCity = await fetch(
