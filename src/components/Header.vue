@@ -29,6 +29,8 @@
               @click="handleSearchClick"
               :data-lat="city.coord.lat"
               :data-lon="city.coord.lon"
+              :data-name="city.name"
+              :data-country="city.sys.country"
             >
               <b-row>
                 <b-col
@@ -50,7 +52,7 @@
                     {{ city.name }}, {{ city.sys.country }}
                     <img
                       :src="
-                        require(`../assets/images/flags/${city.sys.country.toLowerCase()}.png`)
+                        require(`../assets/images/flags/16x16/${city.sys.country.toLowerCase()}.png`)
                       "
                       alt="country flag"
                     />
@@ -104,11 +106,11 @@
         const coord = {
           lat: target.getAttribute('data-lat'),
           lon: target.getAttribute('data-lon'),
+          name: target.getAttribute('data-name'),
+          country: target.getAttribute('data-country'),
         };
 
-        if (coord.lat && coord.lon) this.$emit('searchClick', coord);
-
-        this.weatherResults = [];
+        if (coord.lat && coord.lon) this.$emit('selectCity', coord);
       },
     },
     data() {
