@@ -69,15 +69,83 @@
         </b-row>
       </b-col>
     </b-row>
+    <b-row>
+      <b-col sm="12" md="6">
+        <LineChart
+          :chartdata="prepareDataForLineChart()"
+          :options="lineChartOptions"
+        />
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
 <script>
+  import LineChart from './LineChart.vue';
   export default {
     name: 'Main',
     props: {
       weatherData: {},
     },
+    data() {
+      return {
+        lineChartOptions: {
+          responsive: true,
+          maintainAspectRatio: false,
+          title: {
+            display: true,
+            text: 'Hourly forecast',
+          },
+          legend: {
+            display: false,
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: true,
+          },
+          hover: {
+            animationDuration: 0,
+            mode: 'nearest',
+            intersect: true,
+          },
+          layout: {
+            padding: {
+              right: 50,
+            },
+          },
+          scales: {
+            xAxes: [
+              {
+                gridLines: {
+                  color: 'rgba(0, 0, 0, 0)',
+                },
+                display: true,
+                scaleLabel: {
+                  display: true,
+                  labelString: 'hour',
+                },
+              },
+            ],
+            yAxes: [
+              {
+                gridLines: {
+                  color: 'rgba(0, 0, 0, 0)',
+                },
+                display: true,
+                scaleLabel: {
+                  display: true,
+                  labelString: 'temp',
+                },
+                ticks: {
+                  stepSize: 2,
+                },
+              },
+            ],
+          },
+        },
+      };
+    },
+    components: { LineChart },
     methods: {
       returnTimeString() {
         const date = new Date(this.weatherData.current.dt * 1000);
@@ -91,6 +159,29 @@
           'en-GB',
           options
         )}`;
+      },
+      prepareDataForLineChart() {
+        const hours = this.weatherData.hourly.map(x =>
+          new Date(x.dt * 1000).getHours()
+        );
+        console.log(hours);
+        hours.splice(8, 48 - 8);
+        const temp = this.weatherData.hourly.map(x => Math.round(x.temp));
+        temp.splice(8, 48 - 8);
+
+        const data = {
+          labels: hours,
+          datasets: [
+            {
+              label: 'temperature',
+              backgroundColor: `rgb(255, 204, 153)`,
+              borderColor: `rgb(255, 153, 51)`,
+              data: temp,
+              fill: true,
+            },
+          ],
+        };
+        return data;
       },
     },
   };
