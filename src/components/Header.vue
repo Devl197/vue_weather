@@ -11,6 +11,7 @@
           <b-input-group class="py-4">
             <b-form-input
               id="name"
+              @keyup="handleKeyUp"
               v-model="name"
               type="text"
               class="form-control"
@@ -22,9 +23,12 @@
               </b-button>
             </b-input-group-append>
           </b-input-group>
-          <b-list-group v-show="weatherResults.length > 0" id="searchResults">
+          <b-list-group
+            v-show="getWeatherResults.length > 0"
+            id="searchResults"
+          >
             <b-list-group-item
-              v-for="city in weatherResults"
+              v-for="city in getWeatherResults"
               :key="city.id"
               @click="handleSearchClick"
               :data-lat="city.coord.lat"
@@ -61,8 +65,8 @@
                     <span class="badge badge-pill badge-dark"
                       >{{ city.main.temp }}&#176;C</span
                     >
-                    temperature from {{ city.main.temp_min }}&#176;C to
-                    {{ city.main.temp_max }}&#176;C, wind
+                    temperature from {{ Math.round(city.main.temp_min) }}&#176;C
+                    to {{ Math.round(city.main.temp_max) }}&#176;C, wind
                     {{ city.wind.speed }} m/s, presure
                     {{ city.main.pressure }} hPa
                   </p>
@@ -78,20 +82,45 @@
 </template>
 
 <script>
+  import { mapGetters, mapActions } from 'vuex';
+  import cities from '../assets/cities.json';
   export default {
     name: 'Header',
-    props: {
-      weatherResults: Array,
-    },
     methods: {
-      searchCity() {
+      ...mapActions([
+        'getCurrentWeatherByIds',
+        'getFullWeather',
+        'clearWeatherResults',
+      ]),
+      // Method which handles keyup event
+      async handleKeyUp(e) {
+        e.preventDefault();
+        if (e.keyCode === 13) {
+          await this.searchCity();
+        }
+      },
+      // Method which handles searching cities
+      async searchCity() {
         if (this.name !== '') {
           const city = this.name.toLowerCase().trim();
-          this.$emit('searchCity', city);
+
+          const idArray = [];
+
+          cities.forEach(val => {
+            if (val.name.toLowerCase() == city) idArray.push(val.id);
+          });
+
+          if (idArray.length > 0) {
+            await this.getCurrentWeatherByIds(idArray);
+          } else {
+            console.log('Not valid city name');
+          }
+
           this.name = '';
         }
       },
-      handleSearchClick(e) {
+      // Method which handles searching selected city
+      async handleSearchClick(e) {
         let target = e.target;
 
         // Setting target to li element
@@ -103,16 +132,18 @@
           target = target.parentNode.parentNode.parentNode.parentNode;
         }
 
-        const coord = {
+        const data = {
           lat: target.getAttribute('data-lat'),
           lon: target.getAttribute('data-lon'),
           name: target.getAttribute('data-name'),
           country: target.getAttribute('data-country'),
         };
 
-        if (coord.lat && coord.lon) this.$emit('selectCity', coord);
+        if (data.lat && data.lon) await this.getFullWeather(data);
+        this.clearWeatherResults();
       },
     },
+    computed: mapGetters(['getWeatherResults']),
     data() {
       return {
         name: '',

@@ -3,11 +3,11 @@
     <b-row>
       <b-col cols="12" lg="6" class="mt-2" id="weatherData">
         <h4>
-          <b-icon-geo-alt-fill></b-icon-geo-alt-fill>{{ weatherData.name }},
-          {{ weatherData.country }}
+          <b-icon-geo-alt-fill></b-icon-geo-alt-fill>{{ getWeatherData.name }},
+          {{ getWeatherData.country }}
           <img
             :src="
-              require(`../assets/images/flags/24x24/${weatherData.country.toLowerCase()}.png`)
+              require(`../assets/images/flags/24x24/${getWeatherData.country.toLowerCase()}.png`)
             "
             class="align-bottom"
             alt="country flag"
@@ -16,29 +16,30 @@
         <p>{{ returnTimeString() }}</p>
         <img
           :src="
-            `http://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
+            `http://openweathermap.org/img/wn/${getWeatherData.current.weather[0].icon}@2x.png`
           "
           alt="weather image"
         />
         <h3 class="d-inline-block">
-          {{ Math.round(weatherData.current.temp) }}&#176;C
+          {{ Math.round(getWeatherData.current.temp) }}&#176;C
         </h3>
         <p>
-          Feels like {{ Math.round(weatherData.hourly[0].feels_like) }}&#176;C
-          {{ weatherData.current.weather[0].description }}
+          Feels like
+          {{ Math.round(getWeatherData.hourly[0].feels_like) }}&#176;C
+          {{ getWeatherData.current.weather[0].description }}
         </p>
         <p>
-          wind: {{ weatherData.current.wind_speed }} m/s pressure:
-          {{ weatherData.current.pressure }} hPa humidity:
-          {{ weatherData.current.humidity }}% UV:
-          {{ weatherData.current.uvi }} dew point:
-          {{ Math.round(weatherData.current.dew_point) }}&#176;C visibility:
-          {{ weatherData.current.visibility / 1000 }}km
+          wind: {{ getWeatherData.current.wind_speed }} m/s pressure:
+          {{ getWeatherData.current.pressure }} hPa humidity:
+          {{ getWeatherData.current.humidity }}% UV:
+          {{ getWeatherData.current.uvi }} dew point:
+          {{ Math.round(getWeatherData.current.dew_point) }}&#176;C visibility:
+          {{ getWeatherData.current.visibility / 1000 }}km
         </p>
       </b-col>
       <b-col cols="12" lg="6" class="mt-2" id="daily">
         <h4 class="">8-day Forecast</h4>
-        <b-row v-for="(daily, index) in weatherData.daily" :key="index">
+        <b-row v-for="(daily, index) in getWeatherData.daily" :key="index">
           <b-col
             cols="4"
             class="d-flex align-items-center justify-content-start"
@@ -89,14 +90,10 @@
 <script>
   import LineChart from './LineChart.vue';
   import BarChart from './BarChart.vue';
+  import { mapGetters } from 'vuex';
   export default {
     name: 'Main',
-    props: {
-      weatherData: {
-        type: Object,
-        default: null,
-      },
-    },
+    computed: mapGetters(['getWeatherData']),
     data() {
       return {
         lineChartOptions: {
@@ -214,7 +211,7 @@
     components: { LineChart, BarChart },
     methods: {
       returnTimeString() {
-        const date = new Date(this.weatherData.current.dt * 1000);
+        const date = new Date(this.getWeatherData.current.dt * 1000);
         const options = {
           weekday: 'long',
           year: 'numeric',
@@ -227,11 +224,11 @@
         )}`;
       },
       prepareDataForLineChart() {
-        const hours = this.weatherData.hourly.map(x =>
+        const hours = this.getWeatherData.hourly.map(x =>
           new Date(x.dt * 1000).getHours()
         );
         hours.splice(8, 48 - 8);
-        const temp = this.weatherData.hourly.map(x => x.temp);
+        const temp = this.getWeatherData.hourly.map(x => x.temp);
         temp.splice(8, 48 - 8);
 
         const data = {
@@ -249,11 +246,11 @@
         return data;
       },
       prepareDataForBarChart() {
-        const hours = this.weatherData.hourly.map(x =>
+        const hours = this.getWeatherData.hourly.map(x =>
           new Date(x.dt * 1000).getHours()
         );
         hours.splice(8, 48 - 8);
-        const pop = this.weatherData.hourly.map(x => parseInt(x.pop * 100));
+        const pop = this.getWeatherData.hourly.map(x => parseInt(x.pop * 100));
         pop.splice(8, 48 - 8);
 
         const data = {
