@@ -14,11 +14,8 @@ const actions = {
   // Method which fetches current weather (it is not structured the same way as in full weather details see 'https://samples.openweathermap.org/data/2.5/weather?id=2172797&appid=439d4b804bc8187953eb36d2a8c26a02') details for an array of city IDs  from openweathermap.org
   async getCurrentWeatherByIds({ commit }, IDs) {
     try {
-      //   const responseForCity = await fetch(
-      //     `/api/weather/city/id=${IDs.toString()}`
-      //   );
       const responseForCity = await fetch(
-        `http://localhost:5000/api/weather/city/id=${IDs.toString()}`
+        `/api/weather/city/id=${IDs.toString()}`
       );
       const dataForCites = await responseForCity.json();
       commit('setWeatherResults', dataForCites);
@@ -29,11 +26,8 @@ const actions = {
   // Method which fetches full weather details from openweathermap.org (see 'https://openweathermap.org/api/one-call-api')
   async getFullWeather({ commit }, { lat, lon, name, country }) {
     try {
-      //   const responseForCity = await fetch(
-      //     `/api/weather/city/lat=${lat}&lon=${lon}`
-      //   );
       const responseForCity = await fetch(
-        `http://localhost:5000/api/weather/city/lat=${lat}&lon=${lon}`
+        `/api/weather/city/lat=${lat}&lon=${lon}`
       );
       const dataForCity = await responseForCity.json();
       dataForCity.name = name;
