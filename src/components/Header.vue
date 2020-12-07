@@ -13,9 +13,10 @@
               id="name"
               @keyup="handleKeyUp"
               v-model="name"
+              autocomplete="off"
               type="text"
               class="form-control"
-              placeholder="Weather in your city"
+              placeholder="Search city"
             ></b-form-input>
             <b-input-group-append>
               <b-button variant="secondary" @click="searchCity">
@@ -63,7 +64,7 @@
                   </p>
                   <p class="mb-1">
                     <span class="badge badge-pill badge-dark"
-                      >{{ city.main.temp }}&#176;C</span
+                      >{{ Math.round(city.main.temp) }}&#176;C</span
                     >
                     temperature from {{ Math.round(city.main.temp_min) }}&#176;C
                     to {{ Math.round(city.main.temp_max) }}&#176;C, wind
@@ -115,8 +116,6 @@
           } else {
             console.log('Not valid city name');
           }
-
-          this.name = '';
         }
       },
       // Method which handles searching selected city
@@ -141,6 +140,7 @@
 
         if (data.lat && data.lon) await this.getFullWeather(data);
         this.clearWeatherResults();
+        this.name = '';
       },
     },
     computed: mapGetters(['getWeatherResults']),
@@ -194,6 +194,12 @@
   @media (min-width: 992px) {
     .search-container {
       width: 45% !important;
+    }
+  }
+
+  @media (max-width: 375px) {
+    h2 {
+      font-size: 1.8em;
     }
   }
 </style>
